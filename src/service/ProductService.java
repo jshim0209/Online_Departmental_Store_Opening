@@ -1,6 +1,9 @@
 package service;
 
 import dao.ProductDAO;
+import entity.Product;
+
+import java.util.List;
 
 public class ProductService {
     private ProductDAO productDAO;
@@ -8,32 +11,38 @@ public class ProductService {
     public ProductService() {
         productDAO = new ProductDAO();
     }
-    public void getAllProducts() {
-        productDAO.findAllProducts();
+
+    public List<Product> getAllProducts() {
+
+        return productDAO.findAllProducts();
     }
 
-    public void getProductById(int productId) {
+    public void addNewProduct(Product product) {
 
-        productDAO.findProductById(productId);
+        productDAO.insertProduct(product);
     }
 
-    public void getProductsByCategory(String productCategory) {
+    public Product getProductById(int productId) {
 
-        productDAO.findProductsByCategory(productCategory);
+        return productDAO.findProductById(productId);
     }
 
-    public void getProductByName(String productName) {
+    public List<Product> getProductsByCategory(String productCategory) {
 
-        productDAO.findProductByName(productName);
+        return productDAO.findProductsByCategory(productCategory);
     }
 
-    public void getTotalAmountSpent() {
+    public List<Product> getProductsByName(String productName) {
 
-        productDAO.findTotalAmountSpent();
+        return productDAO.findProductsByName(productName);
     }
 
-    public void getProfitAmountByCategory(String productCategory) {
+    public double getTotalAmountSpent() {
 
-        productDAO.findProfitAmountByCategory(productCategory);
+        return productDAO.findTotalAmountSpent();
+    }
+
+    public double getProfitAmountByCategory(String productCategory) {
+        return productDAO.findProfitAmountByCategory(productCategory);
     }
 }

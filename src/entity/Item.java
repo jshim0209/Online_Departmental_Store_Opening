@@ -12,6 +12,11 @@ public class Item {
 
     }
 
+    public Item(String category, double buyingPrice) {
+        this.category = category;
+        this.buyingPrice = buyingPrice;
+    }
+
     public Item(String itemName, String category, double buyingPrice) {
         this.itemName = itemName;
         this.category = category;

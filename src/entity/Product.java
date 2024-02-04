@@ -6,18 +6,18 @@ public class Product extends Item {
 
     private int productId;
     private String productName;
-    private double sellingPrice;
     private int availableQuantity;
+    private double sellingPrice;
 
     public Product() {
     }
 
-    public Product(String itemName, String category, double buyingPrice, int productId, String productName, int availableQuantity) {
-        super(itemName, category, buyingPrice);
+    public Product(int productId, String productName, int availableQuantity, String category, double buyingPrice, double sellingPrice) {
+        super(category, buyingPrice);
         this.productId = productId;
         this.productName = productName;
-        this.sellingPrice = getBuyingPrice() * 1.5;
         this.availableQuantity = availableQuantity;
+        this.sellingPrice = sellingPrice;
     }
 
     public int getProductId() {

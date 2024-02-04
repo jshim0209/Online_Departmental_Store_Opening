@@ -1,98 +1,172 @@
 package dao;
 
 import entity.Product;
+import utility.ConnectionUtility;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductDAO {
+    private Connection connection;
 
-    private Product[] products;
-    private Product nikeShoesProduct;
-    private Product rlShirtsProduct;
-    private Product macBookProduct;
-    private Product iPhone15Product;
-    private Product levisJeansProduct;
     public ProductDAO() {
-        nikeShoesProduct = new Product("Nike Shoes", "Shoes", 50.00, 1, "Nike Shoes", 100);
-        rlShirtsProduct = new Product("Ralph Lauren Shirts", "Shirts", 80.00, 2, "Ralph Lauren Shirts", 300);
-        macBookProduct = new Product("MacBook", "Laptops", 800.00, 3, "MacBook", 500);
-        iPhone15Product = new Product("iPhone 15", "Phone", 600.00, 4, "iPhone 15", 300);
-        levisJeansProduct = new Product("Levi's Jeans", "Jeans", 130.00, 5, "Levi's Jeans", 800);
-        products = new Product[]{nikeShoesProduct, rlShirtsProduct, macBookProduct, iPhone15Product, levisJeansProduct};
+        connection = ConnectionUtility.getConnection();
     }
 
-    public void findAllProducts() {
-        for (Product product : products) {
-            System.out.println(
-                    "Product ID: " + product.getProductId() +
-                            ", Product Name: " + product.getProductName() +
-                            ", Category: " + product.getCategory() +
-                            ", Available Quantity: " + product.getAvailableQuantity() +
-                            ", Price: " + product.getSellingPrice()
-            );
-        }
-    }
-
-    public void findProductById(int productId) {
-        for (Product product : products) {
-            if (product.getProductId() == productId) {
-                System.out.println(
-                        "Product ID: " + product.getProductId() +
-                                ", Product Name: " + product.getProductName() +
-                                ", Category: " + product.getCategory() +
-                                ", Available Quantity: " + product.getAvailableQuantity() +
-                                ", Price: " + product.getSellingPrice()
-                );
+    public List<Product> findAllProducts() {
+        List<Product> products = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM Products";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int productId = resultSet.getInt("product_id");
+                String productName = resultSet.getString("product_name");
+                int availableQuantity = resultSet.getInt("available_quantity");
+                String category = resultSet.getString("category");
+                double buyingPrice = resultSet.getDouble("buying_price");
+                double sellingPrice = resultSet.getDouble("selling_price");
+                products.add(new Product(productId, productName, availableQuantity, category, buyingPrice, sellingPrice));
             }
-        }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
     }
 
-    public void findProductsByCategory(String productCategory) {
-        for (Product product : products) {
-            if (product.getCategory().equals(productCategory)) {
-                System.out.println(
-                        "Product ID: " + product.getProductId() +
-                                ", Product Name: " + product.getProductName() +
-                                ", Category: " + product.getCategory() +
-                                ", Available Quantity: " + product.getAvailableQuantity() +
-                                ", Price: " + product.getSellingPrice()
-                );
+    public void insertProduct(Product product) {
+        try {
+            String sql = "INSERT INTO Products VALUES(?, ?, ?, ?, ?, ?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, product.getProductId());
+            preparedStatement.setString(2, product.getProductName());
+            preparedStatement.setInt(3, product.getAvailableQuantity());
+            preparedStatement.setString(4, product.getCategory());
+            preparedStatement.setDouble(5, product.getBuyingPrice());
+            preparedStatement.setDouble(6, product.getSellingPrice());
+
+            int numberOfProductsInserted = preparedStatement.executeUpdate();
+            if (numberOfProductsInserted > 0) {
+                System.out.println("Data inserted successfully!!");
+            } else {
+                System.out.println("Data insertion failed...");
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public void findProductByName(String productName) {
-        for (Product product : products) {
-            if (product.getProductName().equals(productName)) {
-                System.out.println(
-                        "Product ID: " + product.getProductId() +
-                                ", Product Name: " + product.getProductName() +
-                                ", Category: " + product.getCategory() +
-                                ", Available Quantity: " + product.getAvailableQuantity() +
-                                ", Price: " + product.getSellingPrice()
-                );
+    public Product findProductById(int productId) {
+        try {
+            String sql = "SELECT * FROM Products WHERE product_id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, productId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                int product_id = resultSet.getInt("product_id");
+                String product_name = resultSet.getString("product_name");
+                int available_quantity = resultSet.getInt("available_quantity");
+                String category = resultSet.getString("category");
+                double buying_price = resultSet.getDouble("buying_price");
+                double selling_price = resultSet.getDouble("selling_price");
+                return new Product(product_id, product_name, available_quantity, category, buying_price, selling_price);
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
-    public void findTotalAmountSpent() {
+    public List<Product> findProductsByCategory(String productCategory) {
+        List<Product> products = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM Products WHERE category = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, productCategory);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int product_id = resultSet.getInt("product_id");
+                String product_name = resultSet.getString("product_name");
+                int available_quantity = resultSet.getInt("available_quantity");
+                String category = resultSet.getString("category");
+                double buying_price = resultSet.getDouble("buying_price");
+                double selling_price = resultSet.getDouble("selling_price");
+                products.add(new Product(product_id, product_name, available_quantity, category, buying_price, selling_price));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+
+    public List<Product> findProductsByName(String productName) {
+        List<Product> products = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM Products WHERE product_name = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, productName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int product_id = resultSet.getInt("product_id");
+                String product_name = resultSet.getString("product_name");
+                int available_quantity = resultSet.getInt("available_quantity");
+                String category = resultSet.getString("category");
+                double buying_price = resultSet.getDouble("buying_price");
+                double selling_price = resultSet.getDouble("selling_price");
+                products.add(new Product(product_id, product_name, available_quantity, category, buying_price, selling_price));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+
+    public double findTotalAmountSpent() {
         double totalAmountSpent = 0;
-        for (Product product : products) {
-            totalAmountSpent += (product.getBuyingPrice() * product.getAvailableQuantity());
+        try {
+            String sql = "SELECT * FROM Products";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int available_quantity = resultSet.getInt("available_quantity");
+                double buying_price = resultSet.getDouble("buying_price");
+                totalAmountSpent += (buying_price * available_quantity);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        System.out.println("Total Amount spent on products is: $" + totalAmountSpent);
+        return totalAmountSpent;
     }
 
-    public void findProfitAmountByCategory(String productCategory) {
+    public double findProfitAmountByCategory(String productCategory) {
         double totalAmountSpent = 0;
         double grossProfit = 0;
         double netProfit = 0;
-        for (Product product : products) {
-            if (product.getCategory().equals(productCategory)) {
-                totalAmountSpent += (product.getBuyingPrice() * product.getAvailableQuantity());
-                grossProfit += (product.getSellingPrice() * product.getAvailableQuantity());
-                netProfit = grossProfit - totalAmountSpent;
+        try {
+            String sql = "SELECT * FROM Products WHERE category = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, productCategory);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int available_quantity = resultSet.getInt("available_quantity");
+                double buying_price = resultSet.getDouble("buying_price");
+                double selling_price = resultSet.getDouble("selling_price");
+                totalAmountSpent += (buying_price * available_quantity);
+                grossProfit += (selling_price * available_quantity);
             }
+            netProfit = grossProfit - totalAmountSpent;
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        System.out.println("Profit Amount for Category of " + productCategory + " is: $" + netProfit);
+        return netProfit;
     }
 }
